@@ -1,5 +1,5 @@
 import test from 'ava'
-import html2pug from './src'
+import html2pug from './src/index.js'
 
 test('transforms html document to pug with default options', t => {
   const html = `<!doctype html>
@@ -57,19 +57,17 @@ $(document).ready(function() {
 html(lang='en')
   head
     style(type='text/css').
-      
       * {
         margin: 0;
         padding: 0;
       }
-      
+
   body
     script(type='text/javascript').
-      
       $(document).ready(function() {
         console.log('ready')
       })
-      `
+`
 
   const generated = html2pug(html)
   t.is(generated, pug)

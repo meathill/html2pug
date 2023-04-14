@@ -78,6 +78,7 @@ class Parser {
   getNodeWithAttributes(node) {
     const { tagName, attrs } = node
     const attributes = []
+    const classes = [];
     let pugNode = tagName
 
     if (!attrs) {
@@ -100,7 +101,13 @@ class Parser {
           pugNode += `#${value}`
           break
         case 'class':
-          pugNode += `.${value.split(' ').join('.')}`
+          for (const className of value.split(' ')) {
+            if (/:\[]/.test(className)) {
+              classes.push(className)
+            } else {
+              pugNode += `.${className}`
+            }
+          }
           break
         default: {
           // Add escaped single quotes (\') to attribute values
@@ -112,6 +119,9 @@ class Parser {
       }
     }
 
+    if (classes.length) {
+      attributes.unshift(`class="${classes.join(' ')}"`);
+    }
     if (attributes.length) {
       pugNode += `(${attributes.join(this.separatorStyle)})`
     }
@@ -133,6 +143,14 @@ class Parser {
     const result = `${indent}${node}`
 
     const lines = value.split('\n')
+    let hasTrailingNewline = false;
+    if (lines[0] === '') {
+      lines.shift();
+    }
+    if (lines[lines.length - 1] === '') {
+      hasTrailingNewline = true;
+      lines.pop();
+    }
 
     // Create an inline node
     if (lines.length <= 1) {
@@ -142,6 +160,8 @@ class Parser {
     // Create a multiline node
     const indentChild = this.getIndent(level + 1)
     const multiline = lines.map(line => `${indentChild}${line}`).join('\n')
+      // add trailing newline
+      + (hasTrailingNewline ? '\n' : '');
 
     return `${result}${blockChar}\n${multiline}`
   }
@@ -177,7 +197,7 @@ class Parser {
     const indent = this.getIndent(level)
 
     // Omit line breaks between HTML elements
-    if (/^[\n]+$/.test(value)) {
+    if (/^\n+$/.test(value)) {
       return false
     }
 
@@ -216,4 +236,4 @@ class Parser {
   }
 }
 
-module.exports = Parser
+export default Parser;

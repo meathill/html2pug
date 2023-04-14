@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
-const hasFlag = require('has-flag')
-const getStdin = require('get-stdin')
-const html2pug = require('./')
-const { version } = require('../package.json')
+import hasFlag from 'has-flag';
+import getStdin from 'get-stdin';
+import html2pug from './';
+import pkg from '../package.json';
+
+const { version } = pkg;
 
 // help represents the usage guide
 const help = `
