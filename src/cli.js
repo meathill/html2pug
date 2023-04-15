@@ -1,71 +1,68 @@
 #!/usr/bin/env node
 
-import hasFlag from 'has-flag';
-import getStdin from 'get-stdin';
-import html2pug from './';
-import pkg from '../package.json';
+import yargs from 'yargs';
+import { readFile, writeFile } from 'fs/promises';
+import { existsSync } from 'fs';
+import {fileURLToPath} from "url";
+import html2pug from './index.js';
 
-const { version } = pkg;
+const argv = yargs(process.argv.slice(2))
+  .scriptName('html2pug')
+  .usage('$0 [options] -i [file]')
+  .example('$0 -i example.html', 'write to stdout')
+  .example('$0 -i example.html -o example.pug', 'write to file')
+  .option('i', {
+    alias: 'input',
+    describe: 'Input file',
+    type: 'string',
+    demandOption: true,
+  })
+  .option('o', {
+    alias: 'output',
+    describe: 'Output file',
+    type: 'string',
+  })
+  .option('f', {
+    alias: 'fragment',
+    describe: "Don't wrap in enclosing <html> tag",
+    default: true,
+    type: 'boolean',
+  })
+  .option('t', {
+    alias: 'tabs',
+    describe: 'Use tabs for indentation',
+    default: false,
+    type: 'boolean',
+  })
+  .option('c', {
+    alias: 'commas',
+    describe: 'Use commas to separate attributes',
+    default: false,
+    type: 'boolean',
+  })
+  .option('d', {
+    alias: 'doubleQuotes',
+    describe: 'Use double quotes for attribute values',
+    default: true,
+    type: 'boolean',
+  })
+  .help('h')
+  .alias('h', 'help')
+  .version('v')
+  .alias('v', 'version')
+  .argv;
 
-// help represents the usage guide
-const help = `
-  html2pug converts HTML to Pug.
-
-  usage:
-    html2pug [options] < [file]
-
-  options:
-    -f, --fragment       Don't wrap in enclosing <html> tag
-    -t, --tabs           Use tabs for indentation
-    -c, --commas         Use commas to separate attributes
-    -d, --double-quotes  Use double quotes for attribute values
-    -h, --help           Show this page
-    -v, --version        Show version
-
-  examples:
-    # write to stdout
-    html2pug < example.html
-
-    # write to file
-    html2pug < example.html > example.pug
-`
-
-// print logs to stdout and exits the process
-const print = (text, exitCode = 0) => {
-  /* eslint-disable no-console */
-  if (exitCode === 1) {
-    console.error(text)
+const cwd = process.cwd();
+const file = fileURLToPath(new URL(argv.input, cwd));
+const input = existsSync(file) ? await readFile(file, 'utf8') : argv.input;
+try {
+  const output = html2pug(input, argv);
+  if (argv.output) {
+    const to = fileURLToPath(new URL(argv.output, cwd));
+    await writeFile(to, output, 'utf8');
   } else {
-    console.log(text)
+    console.log(output);
   }
-  /* eslint-enable no-console */
-  process.exit(exitCode)
+} catch (e) {
+  console.error(e);
 }
-
-// convert uses the stdin as input for the html2pug library
-const convert = async (options = {}) => {
-  const stdin = await getStdin()
-  if (!stdin) {
-    return print(help)
-  }
-  return html2pug(stdin, options)
-}
-
-if (hasFlag('h') || hasFlag('help')) {
-  print(help)
-}
-
-if (hasFlag('v') || hasFlag('version')) {
-  print(version)
-}
-
-const options = {
-  fragment: hasFlag('f') || hasFlag('fragment'),
-  tabs: hasFlag('t') || hasFlag('tabs'),
-  commas: hasFlag('c') || hasFlag('commas'),
-  doubleQuotes: hasFlag('d') || hasFlag('double-quotes'),
-}
-
-convert(options)
-  .then(result => print(result))
-  .catch(err => print(err, 1))
