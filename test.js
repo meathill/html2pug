@@ -182,3 +182,13 @@ test('collapses boolean attributes', t => {
 
   t.is(generated, expected)
 })
+
+test('support TailwindCSS', t => {
+  const generated = html2pug(
+    '<div class="h-20 -ml-2 sm:w-full hover:underline bg-[#31665D]">Hello World!</div>',
+    { fragment: true }
+  )
+  const expected = `.h-20(class="-ml-2 sm:w-full hover:underline bg-[#31665D]") Hello World!`
+
+  t.is(generated, expected)
+})
