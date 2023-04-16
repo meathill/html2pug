@@ -8,6 +8,7 @@ const defaultOptions = {
   tabs: false,
   commas: true,
   doubleQuotes: false,
+  newLine: true,
 
   // html-minifier options
   caseSensitive: true,
@@ -22,7 +23,14 @@ export default (sourceHtml, options = {}) => {
   const opts = { ...defaultOptions, ...options }
   const html = minify(sourceHtml, opts)
 
-  const { fragment, tabs, commas, doubleQuotes } = opts
+  const {
+    fragment,
+    tabs,
+    commas,
+    doubleQuotes,
+    newLine,
+    header,
+  } = opts
 
   // Parse HTML and convert to Pug
   const doc = fragment ? parseFragment(html) : parse(html)
@@ -30,6 +38,8 @@ export default (sourceHtml, options = {}) => {
     tabs,
     commas,
     doubleQuotes,
+    newLine,
+    header,
   })
   return pugify.parse()
 }

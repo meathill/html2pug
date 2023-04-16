@@ -14,10 +14,10 @@ const hasSingleTextNodeChild = node => {
 
 class Parser {
   constructor(root, options = {}) {
-    this.pug = ''
     this.root = root
 
-    const { tabs, commas, doubleQuotes } = options
+    const { tabs, commas, doubleQuotes, newLine, header } = options
+    this.pug = header ? '///- ' + header : '';
 
     // Tabs or spaces
     this.indentStyle = tabs ? '\t' : '  '
@@ -25,10 +25,18 @@ class Parser {
     this.separatorStyle = commas ? ', ' : ' '
     // Single quotes or double
     this.quoteStyle = doubleQuotes ? '"' : "'"
+    // New line or no new line
+    this.newLineStyle = newLine;
   }
 
   getIndent(level = 0) {
     return this.indentStyle.repeat(level)
+  }
+
+  getSeparator(level) {
+    if (!this.newLineStyle) return this.separatorStyle;
+
+    return `${this.separatorStyle}\n${this.getIndent(level)}`;
   }
 
   parse() {
@@ -75,7 +83,7 @@ class Parser {
   /*
    * Returns a Pug node name with all attributes set in parentheses.
    */
-  getNodeWithAttributes(node) {
+  getNodeWithAttributes(node, level) {
     const { tagName, attrs } = node
     const attributes = []
     const classes = [];
@@ -98,7 +106,7 @@ class Parser {
 
       switch (name) {
         case 'id':
-          pugNode += `#${value}`
+          pugNode = pugNode.replace(/^(\s*[\w-]+)/, `$1#${value}`);
           break
         case 'class':
           for (const className of value.split(' ')) {
@@ -123,7 +131,12 @@ class Parser {
       attributes.unshift(`class="${classes.join(' ')}"`);
     }
     if (attributes.length) {
-      pugNode += `(${attributes.join(this.separatorStyle)})`
+      pugNode += '(' + (this.newLineStyle ? '\n' + this.getIndent(level + 1) : '');
+      pugNode += attributes.join(this.getSeparator(level + 1));
+      if (this.newLineStyle) {
+        pugNode += '\n' + this.getIndent(level);
+      }
+      pugNode += ')';
     }
 
     return pugNode
@@ -208,7 +221,7 @@ class Parser {
    * createElement formats a generic HTML element.
    */
   createElement(node, level) {
-    const pugNode = this.getNodeWithAttributes(node)
+    const pugNode = this.getNodeWithAttributes(node, level)
 
     const value = hasSingleTextNodeChild(node)
       ? node.childNodes[0].value
