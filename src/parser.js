@@ -106,11 +106,13 @@ class Parser {
 
       switch (name) {
         case 'id':
-          pugNode = pugNode.replace(/^(\s*[\w-]+)/, `$1#${value}`);
+          pugNode = pugNode
+            ? pugNode.replace(/^(\s*[\w-]+)/, `$1#${value}`)
+            : '#' + value;
           break
         case 'class':
           for (const className of value.split(' ')) {
-            if (/[:[\]]/.test(className) || className.startsWith('-')) {
+            if (/[:[\].]/.test(className) || className.startsWith('-')) {
               classes.push(className)
             } else {
               pugNode += `.${className}`
@@ -167,7 +169,7 @@ class Parser {
 
     // Create an inline node
     if (lines.length <= 1) {
-      return value.length ? `${result} ${value}` : result
+      return value.length ? `${result} ${lines[0]}` : result
     }
 
     // Create a multiline node

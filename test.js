@@ -24,7 +24,7 @@ html(lang='en')
     header#nav
       h1.heading Hello, world!`
 
-  const generated = html2pug(html)
+  const generated = html2pug(html, { newLine: false });
   t.is(generated, pug)
 })
 
@@ -69,7 +69,7 @@ html(lang='en')
       })
 `
 
-  const generated = html2pug(html)
+  const generated = html2pug(html, { newLine: false })
   t.is(generated, pug)
 })
 
@@ -88,7 +88,10 @@ test('uses div tag shorthand when id/class is present', t => {
   const html = "<div id='foo' class='bar'>baz</div>"
   const pug = '#foo.bar baz'
 
-  const generated = html2pug(html, { fragment: true })
+  const generated = html2pug(html, {
+    fragment: true,
+    newline: false,
+  })
   t.is(generated, pug)
 })
 
@@ -135,6 +138,8 @@ test('uses tabs when tabs is truthy', t => {
 test('uses a comma to separate attributes', t => {
   const generated = html2pug('<input type="text" name="foo" />', {
     fragment: true,
+    comma: true,
+    newLine: false,
   })
   const expected = "input(type='text', name='foo')"
 
@@ -145,6 +150,7 @@ test('uses a space to separate attributes', t => {
   const generated = html2pug('<input type="text" name="foo" />', {
     fragment: true,
     commas: false,
+    newLine: false,
   })
   const expected = "input(type='text' name='foo')"
 
@@ -155,6 +161,7 @@ test('uses double quotes for attribute values', t => {
   const generated = html2pug('<input type="text" name="foo" />', {
     fragment: true,
     doubleQuotes: true,
+    newLine: false,
   })
   const expected = 'input(type="text", name="foo")'
 
@@ -166,6 +173,7 @@ test('single quotes in attribute values are escaped', t => {
     `<button aria-label="closin&apos;" onclick="window.alert('bye')">close</button>`,
     {
       fragment: true,
+      newLine: false,
     }
   )
   const expected = `button(aria-label='closin\\'', onclick='window.alert(\\'bye\\')') close`
@@ -176,7 +184,10 @@ test('single quotes in attribute values are escaped', t => {
 test('collapses boolean attributes', t => {
   const generated = html2pug(
     `<input type="text" name="foo" disabled="disabled" readonly="readonly" />`,
-    { fragment: true }
+    {
+      fragment: true,
+      newLine: false,
+    }
   )
   const expected = `input(type='text', name='foo', disabled, readonly)`
 
@@ -186,9 +197,30 @@ test('collapses boolean attributes', t => {
 test('support TailwindCSS', t => {
   const generated = html2pug(
     '<div class="h-20 -ml-2 sm:w-full hover:underline bg-[#31665D]">Hello World!</div>',
-    { fragment: true }
+    {
+      fragment: true,
+      newLine: false,
+    }
   )
   const expected = `.h-20(class="-ml-2 sm:w-full hover:underline bg-[#31665D]") Hello World!`
+
+  t.is(generated, expected)
+})
+
+test('textNode with newline', t => {
+  const html = `<button type="submit"
+        class="inline-flex">
+  Post comment
+</button>`
+  const generated = html2pug(
+    html,
+    {
+      fragment: true,
+      newLine: false,
+      doubleQuotes: true,
+    }
+  )
+  const expected = `button.inline-flex(type="submit") Post comment`
 
   t.is(generated, expected)
 })

@@ -1,6 +1,6 @@
 {
   "name": "@roudanio/html2pug",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Converts HTML to Pug",
   "main": "src/index.js",
   "bin": {
