@@ -207,7 +207,7 @@ test('support TailwindCSS', t => {
   t.is(generated, expected)
 })
 
-test('textNode with newline', t => {
+test('textNode:only-child, in a separate line', t => {
   const html = `<button type="submit"
         class="inline-flex">
   Post comment
@@ -221,6 +221,26 @@ test('textNode with newline', t => {
     }
   )
   const expected = `button.inline-flex(type="submit") Post comment`
+
+  t.is(generated, expected)
+})
+
+test('textNode with siblings, in a separate line', t => {
+  const html = `<button type="submit"
+        class="inline-flex">
+  <span>Post</span>
+  comment`;
+  const generated = html2pug(
+    html,
+    {
+      fragment: true,
+      newLine: false,
+      doubleQuotes: true,
+    }
+  )
+  const expected = `button.inline-flex(type="submit")
+  span Post
+  | comment`;
 
   t.is(generated, expected)
 })

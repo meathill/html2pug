@@ -208,13 +208,16 @@ class Parser {
    * whitespace and should be treated as inline text.
    */
   createText(node, level) {
-    const { value } = node
+    let { value } = node
     const indent = this.getIndent(level)
 
     // Omit line breaks between HTML elements
     if (/^\n+$/.test(value)) {
       return false
     }
+
+    // remove starting and trailing line breaks
+    value = value.replace(/^\n+|\n+$/g, '')
 
     return `${indent}| ${value}`
   }
