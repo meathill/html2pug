@@ -112,7 +112,7 @@ class Parser {
           break
         case 'class':
           for (const className of value.split(' ')) {
-            if (/[:[\].]/.test(className) || className.startsWith('-')) {
+            if (/[:[\]./]/.test(className) || className.startsWith('-')) {
               classes.push(className)
             } else {
               pugNode += `.${className}`

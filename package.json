@@ -1,6 +1,6 @@
 {
   "name": "@roudanio/html2pug",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Converts HTML to Pug",
   "main": "src/index.js",
   "bin": {
@@ -10,14 +10,14 @@
     "html-minifier": "^4.0.0",
     "lodash-es": "^4.17.21",
     "parse5": "^7.1.2",
-    "puppeteer": "^20.7.2",
+    "puppeteer": "^21.5.2",
     "yargs": "^17.7.2"
   },
   "devDependencies": {
     "ava": "^5.3.1",
-    "eslint": "^8.43.0",
+    "eslint": "^8.54.0",
     "husky": "^8.0.3",
-    "lint-staged": "^13.2.2"
+    "lint-staged": "^15.1.0"
   },
   "scripts": {
     "test": "ava test.js",
